@@ -40,83 +40,60 @@ onMounted(() => {
 });
 
 
-function MetersToLatLon(x:number, y:number) {
-    var originShift = 2.0 * Math.PI * 6378137.0 / 2.0;
-
-    var lon = (x / originShift) * 180.0;
-    var lat = (y / originShift) * 180.0;
-
-    lat = 180.0 / Math.PI * (2.0 * Math.atan( Math.exp( lat * Math.PI / 180.0)) - Math.PI / 2.0);
-    return [lat, lon];
-
-}
-
 </script>
 
 <template>
-  <div id="header">
-    <div id="coordContainer" v-if="toggleCoordinateUI">
-      <Card title="Type:" :content="(point ? point.charAt(0).toUpperCase() + String(point).slice(1) : 'None')" ></Card>
-      <Card title="Latitude:" :content=String(latitude.toFixed(4))></Card>
-      <Card title="Longitude:" :content=String(longitude.toFixed(4))></Card>
-    </div>
-    <h2 v-else id="clickMessage">Please click on the map to see coordinates!</h2>
-  </div>
-  <arcgis-map basemap="gray" center="-95,42" zoom="4"></arcgis-map>
-  <div id="footer">
-    <div id="extentContainer">
-      <Card title="XMAX:" :content=String(xmax.toFixed(4))></Card>
-      <Card title="XMIN:" :content=String(xmin.toFixed(4))></Card>
-      <Card title="YMAX:" :content=String(ymax.toFixed(4))></Card>
-      <Card title="YMIN:" :content=String(ymin.toFixed(4))></Card>
-    </div>
-  </div>
+  <calcite-shell>
+    <calcite-navigation slot="header">
+      <calcite-navigation-logo slot="logo" icon="map" heading="Map Events App" description="ArcGIS Maps SDK For Javascript & Vue 3 Composition API"></calcite-navigation-logo>
+      <calcite-action scale="l" slot="user" icon="code" text="Vue JS" text-enabled></calcite-action>
+    </calcite-navigation>
+    <calcite-shell-panel slot="panel-top" layout="horizontal">
+      <calcite-chip-group scale="l" v-if="toggleCoordinateUI">
+        <calcite-chip icon="pin" scale="l">Type: {{point ? point.charAt(0).toUpperCase() + String(point).slice(1) : 'None' }}</calcite-chip>
+        <calcite-chip icon="integer" scale="l">Latitude: {{latitude.toFixed(4) }}</calcite-chip>
+        <calcite-chip icon="integer" scale="l">Longitude: {{longitude.toFixed(4) }}</calcite-chip>
+      </calcite-chip-group>
+      <h2 v-else id="clickMessage">Please click on the map to see coordinates!</h2>
+    </calcite-shell-panel>
+    <arcgis-map basemap="gray" center="-95,42" zoom="4" theme="dark"></arcgis-map>
+    <calcite-shell-panel slot="panel-bottom" layout="horizontal">
+        <calcite-tile-group scale="l" >
+          <calcite-tile icon="extent" heading="XMAX:" :description=String(xmax.toFixed(4))></calcite-tile>
+          <calcite-tile icon="extent" heading="XMIN:" :description=String(xmin.toFixed(4))></calcite-tile>
+          <calcite-tile icon="extent" heading="YMAX:" :description=String(ymax.toFixed(4))></calcite-tile>
+          <calcite-tile icon="extent" heading="YMIN:" :description=String(ymin.toFixed(4))></calcite-tile>
+        </calcite-tile-group>
+    </calcite-shell-panel>
+  </calcite-shell>
 </template>
 
 <style scoped>
 
-#header {
-  flex-grow: 1;
-  padding: 10px;
-  background-color: slategrey;
-  display: flex;
+calcite-tile.content-container.row {
+  justify-content: center !important;
 }
 
 arcgis-map {
   flex-grow: 10;
-  width: 100%;
 }
 
-#footer {
-  padding: 10px;
-  flex-grow: 1;
-  background-color: slategrey;
-  display: flex;
-  justify-content: space-evenly
-}
 
 #clickMessage {
-  flex-grow: 1;
   text-align: center;
-  align-self: center;
-  color: white;
   margin: 0;
-  padding: 0;
+  margin-block: auto;
 }
 
-#coordContainer {
-  flex-grow: 1;
-  display: flex;
-  justify-content: space-evenly;
-  align-items: center;
+calcite-chip-group {
+  align-self: center;
+  padding: 20px;
 }
 
-#extentContainer {
-  display: flex;
-  flex-direction: row;
-  gap: 10px;
-  align-items: center;
+calcite-shell-panel {
+  --calcite-shell-panel-min-height: 84px
 }
+
 
 </style>
 

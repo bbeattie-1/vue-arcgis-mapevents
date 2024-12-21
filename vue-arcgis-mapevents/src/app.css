@@ -5,3 +5,8 @@ html, body, #app {
     display: flex;
     flex-direction: column;
 }
+
+p {
+    margin: 0;
+    padding: 0;
+}
