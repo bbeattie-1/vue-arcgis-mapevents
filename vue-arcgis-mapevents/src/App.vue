@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
+import Graphic from "@arcgis/core/Graphic.js";
 
 //Click Variables
 let latitude = ref(0.00);
@@ -14,34 +15,54 @@ let xmin = ref(0)
 let ymax = ref(0)
 let ymin = ref(0)
 
-//UI Variables
+//UI State Variables
 let toggleCoordinateUI = ref(false)
 
-onMounted(() => {
-  const map = document.querySelector('arcgis-map');
-  map?.addEventListener("arcgisViewClick", (e: CustomEvent) => {
-    let mapPoint = e.detail?.mapPoint
-    if (mapPoint) {
-      toggleCoordinateUI.value = true
-      latitude.value = mapPoint.latitude
-      longitude.value = mapPoint.longitude
-      point.value = mapPoint.type
-    }
-  });
 
-  map?.addEventListener("arcgisViewChange", (e: CustomEvent) => {
-    let target = e?.target
-    let extent = target?.extent
-    if (target && extent) {
-      basemap.value = target.basemap.title
-      zoom.value = target.zoom
-      xmax.value = extent.xmax;
-      xmin.value = extent.xmin
-      ymax.value = extent.ymax
-      ymin.value = extent.ymin
-    }
-  });
-});
+//Map Event Functions
+
+function handleExtentChange (e) {
+  let target = e?.target
+  let extent = target?.extent
+  if (target && extent) {
+    basemap.value = target.basemap.title
+    zoom.value = target.zoom
+    xmax.value = extent.xmax;
+    xmin.value = extent.xmin
+    ymax.value = extent.ymax
+    ymin.value = extent.ymin
+  }
+}
+
+function handleViewClick(e) {
+  
+  e.target.view.graphics.removeAll();
+
+  let { mapPoint } = e.detail
+  if (mapPoint) {
+    toggleCoordinateUI.value = true
+    latitude.value = mapPoint.latitude
+    longitude.value = mapPoint.longitude
+    point.value = mapPoint.type
+  
+    let graphic = new Graphic({
+      geometry: mapPoint,
+      symbol: {
+        type: "simple-marker",  
+        color: "rebeccapurple",
+        size: 8,
+        outline: {
+          color: 'white',
+          width: 2,
+
+        }
+      }
+    })
+  
+    e.target.view.graphics.add(graphic);
+  
+  }
+}
 
 </script>
 
@@ -51,7 +72,7 @@ onMounted(() => {
       <calcite-navigation-logo slot="logo" icon="map" heading="Map Events App" description="ArcGIS Maps SDK For Javascript & Vue 3 Composition API"></calcite-navigation-logo>
       <calcite-action scale="l" slot="user" icon="code" text="Vue JS" text-enabled></calcite-action>
     </calcite-navigation>
-    <arcgis-map basemap="gray" center="-95,42" zoom="4" theme="dark"></arcgis-map>
+    <arcgis-map @arcgisViewChange="handleExtentChange" @arcgisViewClick="handleViewClick" basemap="gray" center="-95,42" zoom="4" theme="dark"></arcgis-map>
     <calcite-shell-panel slot="panel-end" layout="vertical">
       <calcite-panel heading="Click Events">
         <div id="chipContainer" v-if="toggleCoordinateUI">
@@ -65,10 +86,10 @@ onMounted(() => {
         <div id="tileContainer">
           <calcite-tile icon="basemap" heading="Basemap:" :description=String(basemap)></calcite-tile>
           <calcite-tile icon="zoom-in-fixed" heading="Zoom Level:" :description=String(zoom)></calcite-tile>
-          <calcite-tile icon="extent" heading="XMax:" :description=String(xmax.toFixed(4))></calcite-tile>
-          <calcite-tile icon="extent" heading="XMin:" :description=String(xmin.toFixed(4))></calcite-tile>
-          <calcite-tile icon="extent" heading="YMax:" :description=String(ymax.toFixed(4))></calcite-tile>
-          <calcite-tile icon="extent" heading="YMin:" :description=String(ymin.toFixed(4))></calcite-tile>
+          <calcite-tile icon="extent" heading="X Max:" :description=String(xmax.toFixed(4))></calcite-tile>
+          <calcite-tile icon="extent" heading="X Min:" :description=String(xmin.toFixed(4))></calcite-tile>
+          <calcite-tile icon="extent" heading="Y Max:" :description=String(ymax.toFixed(4))></calcite-tile>
+          <calcite-tile icon="extent" heading="Y Min:" :description=String(ymin.toFixed(4))></calcite-tile>
         </div>
       </calcite-panel>
     </calcite-shell-panel>
@@ -94,12 +115,12 @@ arcgis-map {
 }
 
 #chipContainer {
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
   align-self: center;
-  margin-block: auto;
-  padding: 20px;
-  gap: 10px;
+  justify-content: center;
+  gap: 50px;
 }
 
 #tileContainer {
