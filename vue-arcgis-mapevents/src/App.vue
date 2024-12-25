@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import Graphic from "@arcgis/core/Graphic.js";
 
 //Click Variables
@@ -21,7 +21,7 @@ let toggleCoordinateUI = ref(false)
 
 //Map Event Functions
 
-function handleExtentChange (e) {
+function handleExtentChange(e) {
   let target = e?.target
   let extent = target?.extent
   if (target && extent) {
@@ -35,7 +35,7 @@ function handleExtentChange (e) {
 }
 
 function handleViewClick(e) {
-  
+
   e.target.view.graphics.removeAll();
 
   let { mapPoint } = e.detail
@@ -44,23 +44,22 @@ function handleViewClick(e) {
     latitude.value = mapPoint.latitude
     longitude.value = mapPoint.longitude
     point.value = mapPoint.type
-  
+
     let graphic = new Graphic({
       geometry: mapPoint,
       symbol: {
-        type: "simple-marker",  
-        color: "rebeccapurple",
-        size: 8,
-        outline: {
-          color: 'white',
-          width: 2,
-
+        type: "text",
+        color: "red",
+        text: "x",
+        font: {
+          size: 12,
+          weight: "bold"
         }
       }
     })
-  
+
     e.target.view.graphics.add(graphic);
-  
+
   }
 }
 
@@ -69,16 +68,19 @@ function handleViewClick(e) {
 <template>
   <calcite-shell>
     <calcite-navigation slot="header">
-      <calcite-navigation-logo slot="logo" icon="map" heading="Map Events App" description="ArcGIS Maps SDK For Javascript & Vue 3 Composition API"></calcite-navigation-logo>
+      <calcite-navigation-logo slot="logo" icon="map" heading="Map Events App"
+        description="ArcGIS Maps SDK For Javascript & Vue 3 Composition API"></calcite-navigation-logo>
       <calcite-action scale="l" slot="user" icon="code" text="Vue JS" text-enabled></calcite-action>
     </calcite-navigation>
-    <arcgis-map @arcgisViewChange="handleExtentChange" @arcgisViewClick="handleViewClick" basemap="gray" center="-95,42" zoom="4" theme="dark"></arcgis-map>
+    <arcgis-map @arcgisViewChange="handleExtentChange" @arcgisViewClick="handleViewClick" basemap="gray" center="-95,42"
+      zoom="4" theme="dark"></arcgis-map>
     <calcite-shell-panel slot="panel-end" layout="vertical">
       <calcite-panel heading="Click Events">
         <div id="chipContainer" v-if="toggleCoordinateUI">
-          <calcite-chip icon="pin" scale="l">Type: {{point ? point.charAt(0).toUpperCase() + String(point).slice(1) : 'None' }}</calcite-chip>
-          <calcite-chip icon="integer" scale="l">Latitude: {{latitude.toFixed(4) }}</calcite-chip>
-          <calcite-chip icon="integer" scale="l">Longitude: {{longitude.toFixed(4) }}</calcite-chip>
+          <calcite-chip icon="pin" scale="l">Type: {{ point ? point.charAt(0).toUpperCase() + String(point).slice(1) :
+            'None' }}</calcite-chip>
+          <calcite-chip icon="integer" scale="l">Latitude: {{ latitude.toFixed(4) }}</calcite-chip>
+          <calcite-chip icon="integer" scale="l">Longitude: {{ longitude.toFixed(4) }}</calcite-chip>
         </div>
         <h2 v-else id="clickMessage">Click on the map to see coordinates!</h2>
       </calcite-panel>
@@ -97,7 +99,6 @@ function handleViewClick(e) {
 </template>
 
 <style scoped>
-
 calcite-shell-panel {
   --calcite-shell-panel-width: 33vw
 }
@@ -127,7 +128,4 @@ arcgis-map {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
-
 </style>
-
-
